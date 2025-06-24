@@ -1,63 +1,177 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=19674885&assignment_repo_type=AssignmentRepo)
-# Express.js RESTful API Assignment
+ Project Setup
+Initialized Node.js project
 
-This assignment focuses on building a RESTful API using Express.js, implementing proper routing, middleware, and error handling.
+Using npm init -y to create package.json.
 
-## Assignment Overview
+Installed required dependencies
 
-You will:
-1. Set up an Express.js server
-2. Create RESTful API routes for a product resource
-3. Implement custom middleware for logging, authentication, and validation
-4. Add comprehensive error handling
-5. Develop advanced features like filtering, pagination, and search
+bash
+Copy
+Edit
+npm install express body-parser uuid
+🚀 Express.js Server Setup
+Created a basic Express server using:
 
-## Getting Started
+js
+Copy
+Edit
+const express = require('express');
+const app = express();
+const port = 3000;
+Server starts and listens on port 3000:
 
-1. Accept the GitHub Classroom assignment invitation
-2. Clone your personal repository that was created by GitHub Classroom
-3. Install dependencies:
-   ```
-   npm install
-   ```
-4. Run the server:
-   ```
-   npm start
-   ```
+js
+Copy
+Edit
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+Root route / responds with “Hello, World!”:
 
-## Files Included
+js
+Copy
+Edit
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
+🛒 RESTful API: Products Resource
+The API manages a products array in-memory with the following fields:
 
-- `Week2-Assignment.md`: Detailed assignment instructions
-- `server.js`: Starter Express.js server file
-- `.env.example`: Example environment variables file
+id: unique identifier (generated using uuidv4())
 
-## Requirements
+name: product name
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Postman, Insomnia, or curl for API testing
+description: product description
 
-## API Endpoints
+price: number
 
-The API will have the following endpoints:
+category: category name
 
-- `GET /api/products`: Get all products
-- `GET /api/products/:id`: Get a specific product
-- `POST /api/products`: Create a new product
-- `PUT /api/products/:id`: Update a product
-- `DELETE /api/products/:id`: Delete a product
+inStock: boolean
 
-## Submission
+📥 Create
+http
+Copy
+Edit
+POST /api/products
+Adds a new product after validating input.
 
-Your work will be automatically submitted when you push to your GitHub Classroom repository. Make sure to:
+📤 Read All
+http
+Copy
+Edit
+GET /api/products
+Lists all products.
 
-1. Complete all the required API endpoints
-2. Implement the middleware and error handling
-3. Document your API in the README.md
-4. Include examples of requests and responses
+Supports filtering by category, pagination, and search by name using query params:
 
-## Resources
+category
 
-- [Express.js Documentation](https://expressjs.com/)
-- [RESTful API Design Best Practices](https://restfulapi.net/)
-- [HTTP Status Codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) 
+page and limit
+
+search
+
+🔍 Read One
+http
+Copy
+Edit
+GET /api/products/:id
+Returns a single product by ID.
+
+✏️ Update
+http
+Copy
+Edit
+PUT /api/products/:id
+Updates a product by ID after validation.
+
+❌ Delete
+http
+Copy
+Edit
+DELETE /api/products/:id
+Deletes a product by ID.
+
+📊 Product Statistics
+http
+Copy
+Edit
+GET /api/stats/products
+Returns product count grouped by category.
+
+🛡️ Middleware Implemented
+Logger Middleware
+
+js
+Copy
+Edit
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+JSON Body Parser
+
+js
+Copy
+Edit
+app.use(bodyParser.json());
+Authentication Middleware
+
+Requires header: x-api-key: 123456
+
+js
+Copy
+Edit
+app.use((req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  if (!apiKey || apiKey !== '123456') {
+    return res.status(401).json({ error: 'Unauthorized: Invalid or missing API key' });
+  }
+  next();
+});
+Validation Middleware
+
+Applied to POST and PUT routes to ensure valid product structure.
+
+🧯 Error Handling
+Custom Error Classes
+NotFoundError used for missing product cases.
+
+Global Error Handler
+js
+Copy
+Edit
+app.use((err, req, res, next) => {
+  if (err instanceof NotFoundError) {
+    return res.status(404).json({ error: err.message });
+  }
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+🧪 Testing with Postman
+Set base URL: http://localhost:3000
+
+Add header to all requests:
+
+vbnet
+Copy
+Edit
+Key: x-api-key
+Value: 123456
+Use the following requests to test:
+
+POST /api/products → Add product
+
+GET /api/products → List all
+
+GET /api/products/:id → Get one
+
+PUT /api/products/:id → Update
+
+DELETE /api/products/:id → Remove
+
+GET /api/products?category=Phones&page=1&limit=2 → Pagination & filtering
+
+GET /api/products?search=phone → Search
+
+GET /api/stats/products → Stats
+
